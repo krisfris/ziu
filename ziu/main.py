@@ -2,6 +2,7 @@ import os
 import sys
 from collections import namedtuple
 from operator import attrgetter
+from send2trash import send2trash
 
 from ziu.qt import *
 
@@ -151,6 +152,7 @@ class MainWindow(QMainWindow):
         QShortcut(QKeySequence('Ctrl+L'), self, self.edit_location)
         QShortcut(QKeySequence('Return'), self, self.enter_pressed)
         QShortcut(QKeySequence('Enter'), self, self.enter_pressed)
+        QShortcut(QKeySequence('Del'), self, self.del_pressed)
 
         self.ui.listView.doubleClicked.connect(self.open_selected)
 
@@ -179,6 +181,18 @@ class MainWindow(QMainWindow):
             if not any(x.isdir for x in items):
                 for item in items:
                     self.open_file(item.path)
+
+    def del_pressed(self):
+        index = None
+        for index in self.ui.listView.selectionModel().selectedIndexes():
+            item = self.ui.listView.model().get_item(index)
+            send2trash(item.path)
+        if index is not None:
+            self.reload_folder()
+
+    def reload_folder(self):
+        self.foldermodel.update()
+        self.ui.listView.clearSelection()
 
     def update_icon_size(self):
         self.ui.listView.setIconSize(self.current_icon_size)
