@@ -149,6 +149,8 @@ class MainWindow(QMainWindow):
         self.ui.actionAbout.triggered.connect(self.about)
 
         QShortcut(QKeySequence('Ctrl+L'), self, self.edit_location)
+        QShortcut(QKeySequence('Return'), self, self.enter_pressed)
+        QShortcut(QKeySequence('Enter'), self, self.enter_pressed)
 
         self.ui.listView.doubleClicked.connect(self.open_selected)
 
@@ -158,12 +160,25 @@ class MainWindow(QMainWindow):
         self.ui.locationEdit.selectAll()
         self.ui.locationEdit.setFocus()
 
+    def open_file(self, path):
+        QDesktopServices.openUrl(QUrl(path))
+
     def open_selected(self, index):
         item = self.ui.listView.model().get_item(index)
         if item.isdir:
             self.set_location(self.history.add(item.path))
         else:
-            QDesktopServices.openUrl(QUrl(item.path))
+            self.open_file(item.path)
+
+    def enter_pressed(self):
+        indexes = self.ui.listView.selectionModel().selectedIndexes()
+        if len(indexes) == 1:
+            self.open_selected(indexes[0])
+        elif len(indexes) > 1:
+            items = [self.ui.listView.model().get_item(x) for x in indexes]
+            if not any(x.isdir for x in items):
+                for item in items:
+                    self.open_file(item.path)
 
     def update_icon_size(self):
         self.ui.listView.setIconSize(self.current_icon_size)
