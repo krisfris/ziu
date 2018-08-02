@@ -1,6 +1,7 @@
 import os
 import sys
 import subprocess
+import traceback
 from collections import namedtuple
 from operator import attrgetter
 from send2trash import send2trash
@@ -55,10 +56,12 @@ class LocationHistory:
 folder_icon = QIcon('pics/icons/tango/scalable/places/folder.svg')
 file_icon = QIcon('pics/icons/tango/scalable/mimetypes/text-x-generic.svg')
 
+FolderItem = namedtuple('FolderItem', ['basename', 'basename_lower', 'path', 'isdir', 'icon'])
+
 
 def get_folder_content(loc):
-    FolderItem = namedtuple('FolderItem', ['basename', 'basename_lower', 'path', 'isdir', 'icon'])
-    for filename in os.listdir(loc):
+    filenames = os.listdir(loc)
+    for filename in filenames:
         path = os.path.join(loc, filename)
         isdir = os.path.isdir(path)
         if isdir:
@@ -305,7 +308,7 @@ class MainWindow(QMainWindow):
         """)
 
 
-def main():
+def _run():
     print('qt version: ', QT_VERSION_STR)
     print('pyqt version: ', PYQT_VERSION_STR)
 
@@ -325,5 +328,14 @@ def main():
     sys.exit(r)
 
 
+def run():
+    try:
+        _run()
+    except Exception as e:
+        QMessageBox.critical(None, "Startup Error",
+                             "Please notify support of this error:\n\n"+
+                             traceback.format_exc())
+
+
 if __name__ == '__main__':
-    main()
+    run()
