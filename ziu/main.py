@@ -155,8 +155,33 @@ class MainWindow(QMainWindow):
         QShortcut(QKeySequence('Del'), self, self.del_pressed)
 
         self.ui.listView.doubleClicked.connect(self.open_selected)
+        self.ui.listView.filter_triggered.connect(self.filter_triggered)
 
         self.current_icon_size = self.default_icon_size
+
+        self.ui.edit_filter.setVisible(False)
+        self.ui.edit_filter.close_filter.connect(self.close_filter)
+        self.ui.edit_filter.textChanged.connect(self.filter_changed)
+
+    def filter_triggered(self, text):
+        self.edit_filter.setText(text)
+        self.edit_filter.setVisible(True)
+        self.edit_filter.setFocus()
+
+    def close_filter(self):
+        self.edit_filter.setText('')
+        self.edit_filter.setVisible(False)
+        self.listView.setFocus()
+
+    def filter_changed(self, value):
+        self.listView.selectionModel().clearSelection()
+        if not value:
+            return
+        rows = [x[0] for x in enumerate(self.foldermodel.items) if x[1].basename_lower.startswith(value.lower())]
+        if rows:
+            index = self.foldermodel.index(rows[0], 0)
+            self.listView.selectionModel().select(index, QItemSelectionModel.Select)
+            self.listView.scrollTo(index, QAbstractItemView.EnsureVisible)
 
     def edit_location(self):
         self.ui.locationEdit.selectAll()
@@ -176,6 +201,7 @@ class MainWindow(QMainWindow):
         indexes = self.ui.listView.selectionModel().selectedIndexes()
         if len(indexes) == 1:
             self.open_selected(indexes[0])
+            self.close_filter()
         elif len(indexes) > 1:
             items = [self.ui.listView.model().get_item(x) for x in indexes]
             if not any(x.isdir for x in items):
@@ -200,6 +226,7 @@ class MainWindow(QMainWindow):
     def apply_location(self):
         loc = self.current_location()
 
+        self.close_filter()
         self.ui.listView.clearSelection()
 
         self.ui.actionGoBack.setEnabled(self.history.back_enabled)
