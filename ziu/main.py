@@ -1,5 +1,6 @@
 import os
 import sys
+import subprocess
 from collections import namedtuple
 from operator import attrgetter
 from send2trash import send2trash
@@ -153,6 +154,7 @@ class MainWindow(QMainWindow):
         QShortcut(QKeySequence('Return'), self, self.enter_pressed)
         QShortcut(QKeySequence('Enter'), self, self.enter_pressed)
         QShortcut(QKeySequence('Del'), self, self.del_pressed)
+        QShortcut(QKeySequence('F4'), self, self.f4_pressed)
 
         self.ui.listView.doubleClicked.connect(self.open_selected)
         self.ui.listView.filter_triggered.connect(self.filter_triggered)
@@ -215,6 +217,9 @@ class MainWindow(QMainWindow):
             send2trash(item.path)
         if index is not None:
             self.reload_folder()
+
+    def f4_pressed(self):
+        subprocess.Popen(['xfce4-terminal', '--working-directory', self.current_location()])
 
     def reload_folder(self):
         self.foldermodel.update()
