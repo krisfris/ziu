@@ -1,0 +1,5 @@
+graft pics
+graft qss
+graft designer
+global-exclude *.py[cod] __pycache__ *.so
+include LICENSE README.md

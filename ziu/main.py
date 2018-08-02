@@ -9,6 +9,7 @@ from send2trash import send2trash
 from ziu.qt import *
 
 
+rootdir = os.path.dirname(os.path.dirname(os.path.abspath(os.path.abspath(__file__))))
 mw = None
 
 
@@ -56,8 +57,8 @@ class LocationHistory:
         return self.location
 
 
-folder_icon = QIcon('pics/icons/tango/scalable/places/folder.svg')
-file_icon = QIcon('pics/icons/tango/scalable/mimetypes/text-x-generic.svg')
+folder_icon = QIcon(os.path.join(rootdir, 'pics/icons/tango/scalable/places/folder.svg'))
+file_icon = QIcon(os.path.join(rootdir, 'pics/icons/tango/scalable/mimetypes/text-x-generic.svg'))
 
 FolderItem = namedtuple('FolderItem', ['basename', 'basename_lower', 'path', 'isdir', 'icon'])
 
@@ -324,11 +325,11 @@ def _run():
     app.setApplicationName('ziu')
     app.setOrganizationName('krisfris')
     app.setOrganizationDomain('krisfris.com')
-    app.setStyleSheet(open('qss/stylesheet.qss').read())
+    app.setStyleSheet(open(os.path.join(rootdir, 'qss/stylesheet.qss')).read())
 
     mw = MainWindow()
     mw.resize(900, 600)
-    mw.setWindowIcon(QIcon('pics/icon.png'))
+    mw.setWindowIcon(QIcon(os.path.join(rootdir, 'pics/icon.png')))
     mw.show()
 
     r = app.exec_()

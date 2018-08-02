@@ -8,7 +8,7 @@ def read(fname):
 
 setup(
     name = 'ziu',
-    version = '0.1.0',
+    version = '0.1.1',
     author = 'Kris',
     author_email = '31852063+krisfris@users.noreply.github.com',
     description = ('ziu file manager'),
@@ -16,10 +16,9 @@ setup(
     keywords = '',
     url = 'https://github.com/krisfris/ziu',
     packages=find_packages(exclude=['docs', 'tests']),
-    package_data={'ziu': ['pics/*', 'qss/*', 'designer/*']},
+    include_package_data=True,
     long_description=read('README.md'),
     long_description_content_type='text/markdown',
-    data_files=[('', ['LICENSE', 'README.md'])],
     install_requires=['pyqt5', 'send2trash'],
     entry_points = {
        'console_scripts': [
