@@ -9,6 +9,9 @@ from send2trash import send2trash
 from ziu.qt import *
 
 
+mw = None
+
+
 class LocationHistory:
     def __init__(self, initial_path):
         self._locations = [initial_path] 
@@ -60,7 +63,11 @@ FolderItem = namedtuple('FolderItem', ['basename', 'basename_lower', 'path', 'is
 
 
 def get_folder_content(loc):
-    filenames = os.listdir(loc)
+    try:
+        filenames = [x.name for x in os.scandir(loc)]
+    except PermissionError:
+        QMessageBox.critical(mw, 'Permission denied', 'Could not access location.')
+        return
     for filename in filenames:
         path = os.path.join(loc, filename)
         isdir = os.path.isdir(path)
@@ -311,6 +318,7 @@ class MainWindow(QMainWindow):
 def _run():
     print('qt version: ', QT_VERSION_STR)
     print('pyqt version: ', PYQT_VERSION_STR)
+    global mw
 
     app = QApplication(sys.argv)
     app.setApplicationName('ziu')
@@ -318,10 +326,10 @@ def _run():
     app.setOrganizationDomain('krisfris.com')
     app.setStyleSheet(open('qss/stylesheet.qss').read())
 
-    w = MainWindow()
-    w.resize(900, 600)
-    w.setWindowIcon(QIcon('pics/icon.png'))
-    w.show()
+    mw = MainWindow()
+    mw.resize(900, 600)
+    mw.setWindowIcon(QIcon('pics/icon.png'))
+    mw.show()
 
     r = app.exec_()
     app.deleteLater()
