@@ -101,6 +101,9 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="contextMenuPolicy">
+         <enum>Qt::CustomContextMenu</enum>
+        </property>
         <property name="autoScrollMargin">
          <number>16</number>
         </property>
@@ -349,6 +352,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+0</string>
+   </property>
+  </action>
+  <action name="actionOpenWith">
+   <property name="text">
+    <string>Open &amp;with</string>
    </property>
   </action>
  </widget>

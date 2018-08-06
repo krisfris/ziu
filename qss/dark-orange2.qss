@@ -457,3 +457,9 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
 {
     border: 1px solid #444;
 }
+
+QRubberBand {
+    background-color: #f00;
+    color: #f00;
+    border-color: #f00;
+}

@@ -20,3 +20,6 @@ twine = "*"
 
 "pyqt5" = "*"
 "send2trash" = "*"
+appdirs = "*"
+dieselhaze = "*"
+python-magic = "*"
