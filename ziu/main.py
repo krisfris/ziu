@@ -404,6 +404,9 @@ class MainWindow(QMainWindow):
 
         self.foldermodel.set_location(loc)
 
+        self.watch_folder = QFileSystemWatcher([loc])
+        self.watch_folder.directoryChanged.connect(self.reload_folder)
+
     def set_location(self, path):
         self.ui.locationEdit.setText(path)
         self.apply_location()
