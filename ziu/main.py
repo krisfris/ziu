@@ -4,10 +4,14 @@ import subprocess
 import traceback
 import appdirs
 import magic
+import grpc
 from collections import namedtuple
 from operator import attrgetter
 from send2trash import send2trash
 from dieselhaze.db_util import db_connect
+
+#import uha_pb2
+#import uha_pb2_grpc
 
 from ziu.qt import *
 
@@ -17,6 +21,13 @@ mw = None
 datadir = appdirs.user_data_dir('ziu')
 os.makedirs(datadir, exist_ok=True)
 con = db_connect(os.path.join(datadir, 'ziu.db'))
+
+
+def send_message():
+    with grpc.insecure_channel('localhost:50051') as channel:
+        stub = uha_pb2_grpc.UhaStub(channel)
+        response = stub.SendMessage(uha_pb2.Message(message='you'))
+    print("Greeter client received: " + response.message)
 
 
 with con:
