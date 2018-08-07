@@ -174,6 +174,25 @@ class OpenWithDialog(QDialog):
             self.enable_ok(False)
 
 
+class RenameDialog(QDialog):
+    def __init__(self, parent, current_name):
+        super(RenameDialog, self).__init__(parent)
+        self.ui = loadUi('designer/rename.ui', self)
+        self.enable_ok(False)
+        self.ui.rename_edit.setText(current_name)
+        self.ui.rename_edit.selectAll()
+        self.ui.rename_edit.textChanged.connect(self.name_changed)
+
+    def enable_ok(self, enable):
+        self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(enable)
+
+    def name_changed(self, value):
+        if value:
+            self.enable_ok(True)
+        else:
+            self.enable_ok(False)
+
+
 class MainWindow(QMainWindow):
     icon_sizes = [QSize(16, 16), QSize(32, 32), QSize(48, 48), QSize(64, 64),
                   QSize(80, 80), QSize(96, 96)]
@@ -213,6 +232,7 @@ class MainWindow(QMainWindow):
         QShortcut(QKeySequence('Return'), self, self.enter_pressed)
         QShortcut(QKeySequence('Enter'), self, self.enter_pressed)
         QShortcut(QKeySequence('Del'), self, self.del_pressed)
+        QShortcut(QKeySequence('F2'), self, self.f2_pressed)
         QShortcut(QKeySequence('F4'), self, self.f4_pressed)
         QShortcut(QKeySequence('F5'), self, self.f5_pressed)
         QShortcut(QKeySequence('Ctrl+W'), self, QApplication.quit)
@@ -330,6 +350,23 @@ class MainWindow(QMainWindow):
             send2trash(item.path)
         if index is not None:
             self.reload_folder()
+
+    def f2_pressed(self):
+        indexes = self.ui.listView.selectionModel().selectedIndexes()
+        if len(indexes) == 1:
+            item = self.ui.listView.model().get_item(indexes[0])
+            dialog = RenameDialog(self, item.name)
+
+            if dialog.exec_():
+                new_name = dialog.rename_edit.text()
+                path = os.path.join(os.path.dirname(item.path), new_name)
+
+                # This is a race condition but it will have to do for now
+                if os.path.exists(path):
+                    QMessageBox.critical(self, '', 'File/directory exists')
+                else:
+                    os.rename(item.path, path)
+                    self.reload_folder()
 
     def f4_pressed(self):
         subprocess.Popen(['xfce4-terminal', '--working-directory', self.current_location()])
