@@ -214,6 +214,7 @@ class MainWindow(QMainWindow):
         QShortcut(QKeySequence('Enter'), self, self.enter_pressed)
         QShortcut(QKeySequence('Del'), self, self.del_pressed)
         QShortcut(QKeySequence('F4'), self, self.f4_pressed)
+        QShortcut(QKeySequence('F5'), self, self.f5_pressed)
         QShortcut(QKeySequence('Ctrl+W'), self, QApplication.quit)
 
         self.ui.listView.doubleClicked.connect(self.open_selected)
@@ -332,6 +333,9 @@ class MainWindow(QMainWindow):
 
     def f4_pressed(self):
         subprocess.Popen(['xfce4-terminal', '--working-directory', self.current_location()])
+
+    def f5_pressed(self):
+        self.reload_folder()
 
     def reload_folder(self):
         self.foldermodel.update()
