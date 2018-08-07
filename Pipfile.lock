@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "cf933f6d23741bd3ee0a1806679509ed9a6000e7772e50f166c393d2a2a077ea"
+            "sha256": "8f2600280737156cdb89075781bee65b8f9d10262d5f01dc1f35f61a6c516ce3"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -38,9 +38,10 @@
         },
         "dieselhaze": {
             "hashes": [
-                "sha256:2ea914eada6faafe6ee5d8ff4a4f6a04718f5fb5262de4ed927581a2b9bce5f2"
+                "sha256:ef6002b9f674723dc2729806a4562406613a245bf164f29eea80f765e2d61e41",
+                "sha256:ed8ce4d4d3688772170275553b569300a3250aa5e5c17ad292e2d466e86a5607"
             ],
-            "version": "==0.2.0"
+            "version": "==0.3.1"
         },
         "googleapis-common-protos": {
             "hashes": [

@@ -4,11 +4,13 @@ import subprocess
 import traceback
 import appdirs
 import magic
+import shutil
 import grpc
 from collections import namedtuple
 from operator import attrgetter
 from send2trash import send2trash
 from dieselhaze.db_util import db_connect
+from dieselhaze.files import copyfile, copytree
 
 #import uha_pb2
 #import uha_pb2_grpc
@@ -247,6 +249,8 @@ class MainWindow(QMainWindow):
         QShortcut(QKeySequence('F4'), self, self.f4_pressed)
         QShortcut(QKeySequence('F5'), self, self.f5_pressed)
         QShortcut(QKeySequence('Ctrl+W'), self, QApplication.quit)
+        QShortcut(QKeySequence('Ctrl+C'), self, self.to_clipboard)
+        QShortcut(QKeySequence('Ctrl+V'), self, self.from_clipboard)
 
         self.ui.listView.doubleClicked.connect(self.open_selected)
         self.ui.listView.filter_triggered.connect(self.filter_triggered)
@@ -287,6 +291,30 @@ class MainWindow(QMainWindow):
             openwith_menu.addAction(self.ui.actionOpenWith)
 
             menu.exec_(globalpos)
+
+    def to_clipboard(self):
+        indexes = self.ui.listView.selectionModel().selectedIndexes()
+        if indexes:
+            data = QMimeData()
+            data.setUrls([QUrl.fromLocalFile(self.ui.listView.model().get_item(x).path)
+                for x in indexes])
+            QApplication.clipboard().setMimeData(data)
+
+    def from_clipboard(self):
+        """Paste files from clipboard.
+
+        Should
+            - ask if dst is file and exists
+            - copy content from src dir to dst dir if dst is dir and exists
+            - recursively apply these rules
+        """
+        for url in QApplication.clipboard().mimeData().urls():
+            src = url.path()
+            dst = os.path.join(self.current_location(), os.path.basename(src))
+            if os.path.isdir(src):
+                copytree(src, dst)
+            else:
+                copyfile(src, dst)
 
     def open_with_triggered(self):
         dialog = OpenWithDialog(self)

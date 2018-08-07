@@ -18,10 +18,10 @@ twine = "*"
 
 [packages]
 
-"PyQt5" = "*"
-"Send2Trash" = "*"
+"pyqt5" = "*"
+"send2trash" = "*"
 appdirs = "*"
-dieselhaze = "*"
 python-magic = "*"
 grpcio = "*"
 googleapis-common-protos = "*"
+dieselhaze = "*"
