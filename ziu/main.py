@@ -113,10 +113,11 @@ class FolderItem:
         return self.direntry.stat(follow_symlinks=False).st_size
 
 
-def get_folder_content(loc):
+def get_folder_content(loc, include_hidden=True):
     try:
         for entry in os.scandir(loc):
-            yield FolderItem(entry)
+            if include_hidden or not entry.name.startswith('.'):
+                yield FolderItem(entry)
     except PermissionError:
         QMessageBox.critical(mw, 'Permission denied', 'Could not access location.')
 
@@ -137,7 +138,8 @@ class FolderModel(QAbstractTableModel):
         if self.loc is None:
             self.items = []
         else:
-            files = get_folder_content(self.loc)
+            files = get_folder_content(self.loc, include_hidden= \
+                True if int(QSettings().value('show_hidden', 1)) else False)
             self.items = sorted(sorted(files, key=attrgetter('name_lower')),
                                 key=attrgetter('isdir'), reverse=True)
         self.layoutChanged.emit()
@@ -284,6 +286,7 @@ class MainWindow(QMainWindow):
         QShortcut(QKeySequence('Ctrl+W'), self, QApplication.quit)
         QShortcut(QKeySequence('Ctrl+C'), self, self.to_clipboard)
         QShortcut(QKeySequence('Ctrl+V'), self, self.from_clipboard)
+        QShortcut(QKeySequence('Ctrl+H'), self, self.toggle_hidden)
         QShortcut(QKeySequence('Ctrl+Shift+N'), self, self.create_folder)
         QShortcut(QKeySequence('Ctrl+Alt+N'), self, self.create_file)
 
@@ -326,6 +329,10 @@ class MainWindow(QMainWindow):
             openwith_menu.addAction(self.ui.actionOpenWith)
 
             menu.exec_(globalpos)
+
+    def toggle_hidden(self):
+        QSettings().setValue('show_hidden', 0 if int(QSettings().value('show_hidden', 1)) else 1)
+        self.reload_folder()
 
     def create_folder(self):
         dialog = NewFolderDialog(self)
