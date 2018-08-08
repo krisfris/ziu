@@ -205,6 +205,23 @@ class RenameDialog(QDialog):
             self.enable_ok(False)
 
 
+class NewFolderDialog(QDialog):
+    def __init__(self, parent):
+        super(NewFolderDialog, self).__init__(parent)
+        self.ui = loadUi('designer/newfolder.ui', self)
+        self.enable_ok(False)
+        self.ui.name_edit.textChanged.connect(self.name_changed)
+
+    def enable_ok(self, enable):
+        self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(enable)
+
+    def name_changed(self, value):
+        if value:
+            self.enable_ok(True)
+        else:
+            self.enable_ok(False)
+
+
 class MainWindow(QMainWindow):
     icon_sizes = [QSize(16, 16), QSize(32, 32), QSize(48, 48), QSize(64, 64),
                   QSize(80, 80), QSize(96, 96)]
@@ -250,6 +267,7 @@ class MainWindow(QMainWindow):
         QShortcut(QKeySequence('Ctrl+W'), self, QApplication.quit)
         QShortcut(QKeySequence('Ctrl+C'), self, self.to_clipboard)
         QShortcut(QKeySequence('Ctrl+V'), self, self.from_clipboard)
+        QShortcut(QKeySequence('Ctrl+Shift+N'), self, self.create_folder)
 
         self.ui.listView.doubleClicked.connect(self.open_selected)
         self.ui.listView.filter_triggered.connect(self.filter_triggered)
@@ -290,6 +308,19 @@ class MainWindow(QMainWindow):
             openwith_menu.addAction(self.ui.actionOpenWith)
 
             menu.exec_(globalpos)
+
+    def create_folder(self):
+        dialog = NewFolderDialog(self)
+
+        if dialog.exec_():
+            name = dialog.name_edit.text()
+            path = os.path.join(self.current_location(), name)
+            try:
+                os.makedirs(path)
+            except:
+                QMessageBox.critical(self, 'Error creating folder', traceback.format_exc())
+            else:
+                self.reload_folder()
 
     def to_clipboard(self):
         indexes = self.ui.listView.selectionModel().selectedIndexes()
