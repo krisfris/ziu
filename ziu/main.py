@@ -112,6 +112,10 @@ class FolderItem:
     def size(self):
         return self.direntry.stat(follow_symlinks=False).st_size
 
+    @property
+    def mime(self):
+        mime = magic.from_file(self.path, mime=True)
+        
 
 def get_folder_content(loc, include_hidden=True):
     try:
@@ -253,6 +257,7 @@ class MainWindow(QMainWindow):
 
         self.foldermodel = FolderModel()
         self.ui.listView.setModel(self.foldermodel)
+        self.ui.listView.selectionModel().selectionChanged.connect(self.selection_changed)
     
         self.history = LocationHistory(get_home())
         self.set_location(self.history.location)
@@ -333,6 +338,27 @@ class MainWindow(QMainWindow):
     def toggle_hidden(self):
         QSettings().setValue('show_hidden', 0 if int(QSettings().value('show_hidden', 1)) else 1)
         self.reload_folder()
+
+    def update_statusbar(self):
+        indexes = self.ui.listView.selectionModel().selectedIndexes()
+        items = [self.ui.listView.model().get_item(x) for x in indexes]
+        if len(indexes) == 0:
+            self.statusBar.showMessage(f'{self.foldermodel.rowCount(self)} items')
+        elif len(indexes) == 1:
+            item = items[0]
+            if item.isdir:
+                self.statusBar.showMessage(f'"{item.name}" folder')
+            else:
+                self.statusBar.showMessage(f'"{item.name}" ({round(item.size/1000, 1)} KiB)')
+        else:
+            if any(x.isdir for x in items):
+                self.statusBar.showMessage(f'{len(indexes)} items selected')
+            else:
+                size = round(sum(x.size for x in items) / 1000, 1)
+                self.statusBar.showMessage(f'{len(indexes)} items selected ({size} KiB)')
+
+    def selection_changed(self, selection):
+        self.update_statusbar()
 
     def create_folder(self):
         dialog = NewFolderDialog(self)
@@ -488,6 +514,7 @@ class MainWindow(QMainWindow):
     def reload_folder(self):
         self.foldermodel.update()
         self.ui.listView.clearSelection()
+        self.update_statusbar()
 
     def update_icon_size(self):
         self.ui.listView.setIconSize(self.current_icon_size)
@@ -506,6 +533,8 @@ class MainWindow(QMainWindow):
 
         self.watch_folder = QFileSystemWatcher([loc])
         self.watch_folder.directoryChanged.connect(self.reload_folder)
+
+        self.update_statusbar()
 
     def set_location(self, path):
         self.ui.locationEdit.setText(path)
