@@ -10,5 +10,8 @@ class EditFilter(QLineEdit):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
             self.close_filter.emit()
-        else:
-            return super(EditFilter, self).keyPressEvent(event)
+        return super(EditFilter, self).keyPressEvent(event)
+
+    def focusOutEvent(self, event):
+        self.close_filter.emit()
+        return super(EditFilter, self).focusOutEvent(event)

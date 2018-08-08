@@ -402,7 +402,6 @@ class MainWindow(QMainWindow):
         self.edit_filter.setFocus()
 
     def close_filter(self):
-        self.edit_filter.setText('')
         self.edit_filter.setVisible(False)
         self.listView.setFocus()
 
@@ -437,10 +436,10 @@ class MainWindow(QMainWindow):
             self.open_file(item.path)
 
     def enter_pressed(self):
+        self.close_filter()
         indexes = self.ui.listView.selectionModel().selectedIndexes()
         if len(indexes) == 1:
             self.open_selected(indexes[0])
-            self.close_filter()
         elif len(indexes) > 1:
             items = [self.ui.listView.model().get_item(x) for x in indexes]
             if not any(x.isdir for x in items):
