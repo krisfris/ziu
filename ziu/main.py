@@ -4,7 +4,6 @@ import subprocess
 import traceback
 import appdirs
 import magic
-import shutil
 import grpc
 from collections import namedtuple
 from operator import attrgetter
@@ -311,10 +310,13 @@ class MainWindow(QMainWindow):
         for url in QApplication.clipboard().mimeData().urls():
             src = url.path()
             dst = os.path.join(self.current_location(), os.path.basename(src))
-            if os.path.isdir(src):
-                copytree(src, dst)
-            else:
-                copyfile(src, dst)
+            try:
+                if os.path.isdir(src):
+                    copytree(src, dst)
+                else:
+                    copyfile(src, dst)
+            except:
+                QMessageBox.critical(self, 'Error copying file/dir', traceback.format_exc())
 
     def open_with_triggered(self):
         dialog = OpenWithDialog(self)
