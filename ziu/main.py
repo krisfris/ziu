@@ -412,6 +412,7 @@ class MainWindow(QMainWindow):
         rows = [x[0] for x in enumerate(self.foldermodel.items) if x[1].name_lower.startswith(value.lower())]
         if rows:
             index = self.foldermodel.index(rows[0], 0)
+            self.listView.setCurrentIndex(index)
             self.listView.selectionModel().select(index, QItemSelectionModel.Select)
             self.listView.scrollTo(index, QAbstractItemView.EnsureVisible)
 
