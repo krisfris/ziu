@@ -9,12 +9,12 @@ from collections import namedtuple
 from operator import attrgetter
 from send2trash import send2trash
 from dieselhaze.db_util import db_connect
-from dieselhaze.files import copyfile, copytree
 
 #import uha_pb2
 #import uha_pb2_grpc
 
 from ziu.qt import *
+from ziu.fileutil import copyfile, copytree
 
 
 rootdir = os.path.dirname(os.path.dirname(os.path.abspath(os.path.abspath(__file__))))
@@ -407,10 +407,10 @@ class MainWindow(QMainWindow):
             src = url.path()
             dst = os.path.join(self.current_location(), os.path.basename(src))
             try:
-                if os.path.isdir(src):
-                    copytree(src, dst)
-                else:
-                    copyfile(src, dst)
+                if os.path.islink(src) or os.path.isfile(src):
+                    copyfile(src, dst, overwrite=False)
+                elif os.path.isdir(src):
+                    copytree(src, dst, overwrite=False)
             except:
                 QMessageBox.critical(self, 'Error copying file/dir', traceback.format_exc())
 
