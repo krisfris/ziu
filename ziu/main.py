@@ -40,6 +40,7 @@ with con:
         'cmd text,'
         'mime text,'
         'isdir integer'
+        'always integer'
     ')')
 
 class LocationHistory:
@@ -420,14 +421,15 @@ class MainWindow(QMainWindow):
             index = self.sender().data()
             item = self.ui.listView.model().get_item(index)
             cmd = dialog.openwith_cmd_edit.text()
+            always = 1 if dialog.always_check.isChecked() else 0
             self.open_file_custom(cmd, item.path)
             name = dialog.openwith_name_edit.text()
             if name:
                 _, ext = os.path.splitext(item.path)
                 mime = None if item.isdir else magic.from_file(item.path)
                 with con:
-                    con.cursor().execute('insert into openwith (name, ext, cmd, mime, isdir) values (?, ?, ?, ?, ?)',
-                        (name, ext, cmd, mime, item.isdir))
+                    con.cursor().execute('insert into openwith (name, ext, cmd, mime, isdir, always) values (?, ?, ?, ?, ?, ?)',
+                        (name, ext, cmd, mime, item.isdir, always))
 
     def filter_triggered(self, text):
         self.edit_filter.setText(text)
@@ -460,7 +462,12 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, 'Error opening file', traceback.format_exc())
 
     def open_file(self, path):
-        QDesktopServices.openUrl(QUrl(path))
+        _, ext = os.path.splitext(path)
+        app = con.cursor().execute('select * from openwith where ext = ? and always = 1 order by id desc', (ext,)).fetchone()
+        if app:
+            self.open_file_custom(app['cmd'], path)
+        else:
+            QDesktopServices.openUrl(QUrl(path))
 
     def open_selected(self, index):
         item = self.ui.listView.model().get_item(index)

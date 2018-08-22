@@ -51,6 +51,16 @@
     </layout>
    </item>
    <item>
+    <widget class="QCheckBox" name="always_check">
+     <property name="text">
+      <string>&amp;Set app as default action for this file type</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
